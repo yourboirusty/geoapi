@@ -21,6 +21,10 @@ IPSTACK_FIELDS = [
 ]
 
 
+class GeoDataSlugEnded(Exception):
+    pass
+
+
 class FailedWorkerResult(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     task_id = models.CharField(max_length=255, blank=True, null=True)
@@ -54,3 +58,16 @@ class GeoData(models.Model):
     class Meta:
         db_table = "geodata"
         ordering = ["-timestamp"]
+
+
+@receiver(pre_save, sender=GeoData)
+def pre_save_slug(sender, instance: GeoData, *args, **kwargs):
+    if instance.pk:
+        return
+    for x in range(50):
+        instance.slug = get_random_string(length=8, allowed_chars=SLUG_CHARACTERS)
+        print(instance.slug)
+        if not sender.objects.filter(slug=instance.slug).exists():
+            break
+        if x == 49:
+            raise GeoDataSlugEnded
