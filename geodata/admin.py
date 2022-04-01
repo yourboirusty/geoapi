@@ -1,3 +1,5 @@
 from django.contrib import admin
+from geodata.models import GeoData, FailedWorkerResult
 
-# Register your models here.
+admin.site.register(GeoData)
+admin.site.register(FailedWorkerResult)

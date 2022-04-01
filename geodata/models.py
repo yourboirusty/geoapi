@@ -1,2 +1,56 @@
-from django.db import models
+import string
 
+from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+from django.contrib.auth import get_user_model
+from django.utils.crypto import get_random_string
+
+
+User = get_user_model()
+
+SLUG_CHARACTERS = string.ascii_uppercase + string.digits[2:]
+
+IPSTACK_FIELDS = [
+    "continent_name",
+    "country_name",
+    "region_name",
+    "city",
+    "latitude",
+    "longitude",
+]
+
+
+class FailedWorkerResult(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    task_id = models.CharField(max_length=255, blank=True, null=True)
+
+    worker_name = models.CharField(max_length=255)
+    worker_error = models.TextField()
+    worker_result = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+
+class GeoData(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(max_length=8, blank=True)
+    task_id = models.CharField(max_length=255)
+
+    address = models.CharField(max_length=15)
+    continent_name = models.CharField(max_length=255)
+    country_name = models.CharField(max_length=255)
+    region_name = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    latitude = models.CharField(max_length=255)
+    longitude = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.address
+
+    class Meta:
+        db_table = "geodata"
+        ordering = ["-timestamp"]
