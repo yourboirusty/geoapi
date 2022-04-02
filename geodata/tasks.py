@@ -60,8 +60,15 @@ def process_geodata(self: Task, ip: str, user: str) -> str:  # type: ignore
     data.update({"address": ip, "user": user, "task_id": self.request.id})
     serializer = GeoDataSerializer(data=data)
     if serializer.is_valid():
-        geodata_object = serializer.save()
-        return geodata_object.slug
+        try:
+            geodata_object = serializer.save()
+            return geodata_object.slug
+        except Exception as e:
+            logger.error(f"Cannot write to database: {e}")
+            self.update_state(
+                state=states.FAILURE, meta="Cannot write to database"
+            )
+            raise Ignore()
     else:
         self.retry(exc=BackendError(serializer.errors))
 
