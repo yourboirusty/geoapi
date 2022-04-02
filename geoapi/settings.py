@@ -15,7 +15,7 @@ SECRET_KEY = os.environ.get(
     "django-insecure-)f4#vrs0b%)o-^8uhim#3c_x1e!61^%xq_s-i)$zo&ag$hj*d&",
 )
 
-DEBUG = os.environ.get("DEBUG", False)
+DEBUG = os.environ.get("DEBUG", True)
 
 ALLOWED_HOSTS = [
     "*",
@@ -164,10 +164,10 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
 }
 
-CELERY_BOKER_URL = "redis://localhost:6379/0"
-CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 CELERY_RESULT_EXTENDED = True
+DEFAULT_RETRY_DELAY = 1
 
 IPSTACK_KEY = os.environ.get("IPSTACK_KEY", "1e4548b006bc1e6e0e3e0e2d021f94b5")
 IPSTACK_URL = os.environ.get("IPSTACK_URL", "https://api.ipstack.com/")
