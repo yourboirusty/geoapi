@@ -1,6 +1,4 @@
 from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from geodata.models import GeoData
@@ -10,7 +8,7 @@ from geodata.serializers import GeoDataSerializer
 class GeoDataViewSet(viewsets.ModelViewSet):
     serializer_class = GeoDataSerializer
     permission_classes = (IsAuthenticated,)
-    allowed_methods = ("GET", "POST", "PUT", "DELETE")
+    allowed_methods = ("GET", "POST", "PUT", "DELETE")  # type: ignore
     lookup_field = "slug"
     filterset_fields = (
         "address",
