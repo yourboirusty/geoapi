@@ -170,4 +170,4 @@ CELERY_RESULT_EXTENDED = True
 DEFAULT_RETRY_DELAY = 1
 
 IPSTACK_KEY = os.environ.get("IPSTACK_KEY", "1e4548b006bc1e6e0e3e0e2d021f94b5")
-IPSTACK_URL = os.environ.get("IPSTACK_URL", "https://api.ipstack.com/")
+IPSTACK_URL = os.environ.get("IPSTACK_URL", "http://api.ipstack.com/")
