@@ -52,7 +52,7 @@ class GeoData(models.Model):
     latitude = models.CharField(max_length=255)
     longitude = models.CharField(max_length=255)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.address
 
     class Meta:
@@ -65,7 +65,9 @@ def pre_save_slug(sender, instance: GeoData, *args, **kwargs):
     if instance.pk:
         return
     for x in range(50):
-        instance.slug = get_random_string(length=8, allowed_chars=SLUG_CHARACTERS)
+        instance.slug = get_random_string(
+            length=8, allowed_chars=SLUG_CHARACTERS
+        )
         print(instance.slug)
         if not sender.objects.filter(slug=instance.slug).exists():
             break

@@ -8,12 +8,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-)f4#vrs0b%)o-^8uhim#3c_x1e!61^%xq_s-i)$zo&ag$hj*d&"
+SECRET_KEY = (
+    "django-insecure-)f4#vrs0b%)o-^8uhim#3c_x1e!61^%xq_s-i)$zo&ag$hj*d&"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "*",
+]
 
 
 # Application definition
@@ -90,16 +94,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",  # noqa E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",  # noqa E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",  # noqa E501
     },
 ]
 
@@ -109,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Warsaw"
 
 USE_I18N = True
 
@@ -128,12 +132,17 @@ STATIC_URL = "/static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-REDIS_URL = "redis://localhost:6379/0"
-
 MAX_EXTERNAL_API_RETRIES = 4
 
 REST_FRAMEWORK = {
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",  # noqa E501
     "PAGE_SIZE": 100,
 }
+
+CELERY_BOKER_URL = "redis://localhost:6379/0"
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_RESULT_EXTENDED = True
