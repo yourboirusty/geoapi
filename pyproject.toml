@@ -19,6 +19,7 @@ celery = {extras = ["redis"], version = "^5.2.3"}
 redis = "^4.2.1"
 types-requests = "^2.27.16"
 drf-spectacular = {extras = ["sidecar"], version = "^0.22.0"}
+django-extensions = "^3.1.5"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.4"
