@@ -1,4 +1,6 @@
+import os
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,19 +10,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "django-insecure-)f4#vrs0b%)o-^8uhim#3c_x1e!61^%xq_s-i)$zo&ag$hj*d&"
+SECRET_KEY = os.environ.get(
+    "DANGO_SECRET",
+    "django-insecure-)f4#vrs0b%)o-^8uhim#3c_x1e!61^%xq_s-i)$zo&ag$hj*d&",
 )
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", False)
 
 ALLOWED_HOSTS = [
     "*",
 ]
 
-
-# Application definition
+# NOT FOR PROD
+CHANNEL_LAYERS = {
+    "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
+}
 
 DEPENDENCIES = [
     "channels",
@@ -28,6 +32,7 @@ DEPENDENCIES = [
     "rest_framework",
     "drf_spectacular",
     "drf_spectacular_sidecar",
+    "django_extensions",
 ]
 
 PROJECT_APPS = [
@@ -50,6 +55,7 @@ INSTALLED_APPS = (
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -61,9 +67,9 @@ MIDDLEWARE = [
 SPECTACULAR_SETTINGS = {
     "TITLE": "GeoAPI",
     "SERVE_INCLUDE_SCHEMA": True,
-        'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
-    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
+    "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
 }
 
 ROOT_URLCONF = "geoapi.urls"
@@ -137,6 +143,8 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -160,3 +168,6 @@ CELERY_BOKER_URL = "redis://localhost:6379/0"
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_RESULT_EXTENDED = True
+
+IPSTACK_KEY = os.environ.get("IPSTACK_KEY", "1e4548b006bc1e6e0e3e0e2d021f94b5")
+IPSTACK_URL = os.environ.get("IPSTACK_URL", "https://api.ipstack.com/")
