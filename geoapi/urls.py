@@ -14,28 +14,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+from geodata.views import GeoDataViewSet
 from rest_framework import routers
-from drf_yasg.views import get_schema_view
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
-)
-from drf_yasg import openapi
-
-from geodata.views import GeoDataViewSet
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="GeoData API",
-        default_version="v1",
-        description="GeoData API",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="kornel.koszela@gmail.com"),
-        license=openapi.License(name="BSD License"),
-        validators=["ssv"],
-    ),
-    public=True,
 )
 
 router = routers.DefaultRouter()
@@ -45,19 +34,24 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(router.urls)),
     path(
-        "auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"
+        "api/auth/token/",
+        TokenObtainPairView.as_view(),
+        name="token_obtain_pair",
     ),
     path(
-        "auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"
+        "api/auth/token/refresh/",
+        TokenRefreshView.as_view(),
+        name="token_refresh",
+    ),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
     ),
     path(
-        "swagger/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
-    path(
-        "redoc/",
-        schema_view.with_ui("redoc", cache_timeout=0),
-        name="schema-redoc",
+        "api/schema/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc",
     ),
 ]

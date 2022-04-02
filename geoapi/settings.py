@@ -26,7 +26,8 @@ DEPENDENCIES = [
     "channels",
     "django_filters",
     "rest_framework",
-    "drf_yasg",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 PROJECT_APPS = [
@@ -55,6 +56,15 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "GeoAPI",
+    "SERVE_INCLUDE_SCHEMA": True,
+        'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+}
 
 ROOT_URLCONF = "geoapi.urls"
 
@@ -139,6 +149,10 @@ REST_FRAMEWORK = {
         "django_filters.rest_framework.DjangoFilterBackend"
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",  # noqa E501
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 100,
 }
 
