@@ -25,6 +25,7 @@ class GeoDataSlugEnded(Exception):
     pass
 
 
+# TODO: Does it even belong here? Should it be handled by logging instead?
 class FailedWorkerResult(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     task_id = models.CharField(max_length=255, blank=True, null=True)
@@ -44,6 +45,7 @@ class GeoData(models.Model):
     slug = models.SlugField(max_length=8, blank=True)
     task_id = models.CharField(max_length=255)
 
+    # Ideally this part would be noSQL, but it'll do
     address = models.CharField(max_length=15)
     continent_name = models.CharField(max_length=255)
     country_name = models.CharField(max_length=255)
@@ -68,6 +70,7 @@ def pre_save_slug(sender, instance: GeoData, *args, **kwargs):
         instance.slug = get_random_string(
             length=8, allowed_chars=SLUG_CHARACTERS
         )
+        # TODO: Figure out why this uses 3 db calls
         if not sender.objects.filter(slug=instance.slug).exists():
             break
         if x == 49:

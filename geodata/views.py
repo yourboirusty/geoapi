@@ -39,6 +39,7 @@ class GeoDataViewSet(viewsets.ModelViewSet):
     )
     @action(methods=["post"], detail=False)
     def lookup(self, request: Request, *args, **kwargs):
+        # TODO: Move this out of the function (decorator?)
         serializer = AddressLookupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         address = serializer.validated_data["lookup_address"]  # type: ignore

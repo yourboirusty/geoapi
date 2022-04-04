@@ -8,6 +8,7 @@ from functools import wraps
 MAX_RUNSTACK_SIZE = 10
 
 
+# TODO: Yeet this outta here
 class StackedAsyncJsonWebsocketConsumer(AsyncJsonWebsocketConsumer):
     _max_runstack_size = MAX_RUNSTACK_SIZE
 
