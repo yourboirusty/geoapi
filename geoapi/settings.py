@@ -21,9 +21,13 @@ ALLOWED_HOSTS = [
     "*",
 ]
 
-# NOT FOR PROD
 CHANNEL_LAYERS = {
-    "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
+    "default": {
+        "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
 }
 
 DEPENDENCIES = [
