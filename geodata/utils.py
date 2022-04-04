@@ -18,6 +18,5 @@ class JWTAuthMiddleware:
         self.app = app
 
     def __call__(self, scope, receive, send):
-        print("JWTAuthMiddleware __call__")
         params = urlparse.parse_qs(scope["query_string"])
         scope["user"] = get_user(params.get("token", [None])[0])
