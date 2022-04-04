@@ -80,3 +80,6 @@ venv.bak/
 # Editors
 .vscode/
 .vscode/settings.json
+
+#Drawio stuff
+*.bkp
