@@ -1,21 +1,98 @@
-from geodata.serializers import GeoDataSerializer
-from channels.generic.websocket import AsyncWebsocketConsumer
-from urllib.parse import urlparse
-from dataclasses import dataclass
+import asyncio
+from typing import Coroutine, Optional
+from geodata.serializers import WorkerStatusResponseSerializer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from geodata.tasks import process_geodata
+from functools import wraps
+
+MAX_RUNSTACK_SIZE = 10
 
 
-class WorkerResponseConsumer(AsyncWebsocketConsumer):
+class StackedAsyncJsonWebsocketConsumer(AsyncJsonWebsocketConsumer):
+    _max_runstack_size = MAX_RUNSTACK_SIZE
+
+    def __init__(self, *args, **kwargs):
+        self._runstack = []
+        super().__init__(*args, **kwargs)
+
+    async def _await_stack(self):
+        await asyncio.gather(*self._runstack)
+
+    def _clean_stack(self):
+        self._runstack = []
+
+    def _append_runstack(self, coroutine: Coroutine) -> int:
+        """Appends a coroutine to the running stack.
+        Returns the index of the coroutine in the stack.
+        """
+        if len(self._runstack) >= self._max_runstack_size:
+            raise RuntimeError(
+                f"Runstack size exceeded. Max size is {self._max_runstack_size}"  # noqa E501
+            )
+        self._runstack.append(coroutine)
+        return len(self._runstack) - 1
+
+    def _pop_runstack(self, index: int) -> Coroutine:
+        """Pops a coroutine from the running stack.
+        Returns the popped coroutine.
+        """
+        return self._runstack.pop(index)
+
+    def _get_runstack_size(self) -> int:
+        return len(self._runstack)
+
+
+def close_stack(f):
+    @wraps(f)
+    async def inner(self: StackedAsyncJsonWebsocketConsumer, *args, **kwargs):
+        try:
+            return await f(self, *args, **kwargs)
+        finally:
+            await asyncio.gather(*self._runstack)
+            self._clean_stack()
+
+    return inner
+
+
+class WorkerResponseConsumer(StackedAsyncJsonWebsocketConsumer):
+    @close_stack
     async def connect(self):
         if not (task_id := self.scope["url_route"]["kwargs"].get("task_id")):
             await self.close(code=400)
         await self.accept()
-        await self.send(text_data=f"Connected to task {task_id}")
+        self._append_runstack(
+            self.send(text_data=f"Connected to task {task_id}")
+        )
+        self._append_runstack(
+            self.channel_layer.group_add(  # type: ignore
+                task_id,
+                self.channel_name,
+            )
+        )
+        process_result = process_geodata.AsyncResult(task_id)  # type: ignore
+        self.send_status(
+            status=process_result.status, response=process_result.result
+        )
 
     async def disconnect(self, close_code):
         pass
 
-    async def client_status(self, event):
-        await self.send(text_data=event["status"])
+    def send_status(
+        self, status: str, response: Optional[str] = None, close=False
+    ) -> None:
+        serializer = WorkerStatusResponseSerializer(
+            data={
+                "status": status,
+                "response": "None"
+                if response is None
+                else response,  # allow_blank is being ignored (??)
+            }
+        )
+        if serializer.is_valid():
+            self._append_runstack(self.send_json(serializer.data, close))
+        else:
+            self._append_runstack(self.send_json(serializer.errors, close))
 
-    async def worker_status(self, event):
-        await self.send(text_data=event["status"])
+    @close_stack
+    async def worker_status(self, event: dict):
+        self.send_status(event["status"], event.get("response"))
