@@ -68,7 +68,6 @@ def pre_save_slug(sender, instance: GeoData, *args, **kwargs):
         instance.slug = get_random_string(
             length=8, allowed_chars=SLUG_CHARACTERS
         )
-        print(instance.slug)
         if not sender.objects.filter(slug=instance.slug).exists():
             break
         if x == 49:
