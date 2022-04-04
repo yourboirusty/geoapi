@@ -34,7 +34,9 @@ REQUEST_PARAMS = {
     "fields": ",".join(IPSTACK_FIELDS),
 }
 
-channel_layer = get_channel_layer()
+channel_layer = get_channel_layer()  # type: ignore
+if not channel_layer:
+    raise RuntimeError("Channel layer not found")
 
 logger = get_task_logger(__name__)
 
