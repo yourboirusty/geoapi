@@ -41,6 +41,7 @@ if not channel_layer:
 logger = get_task_logger(__name__)
 
 
+# TODO: Cleanup
 @shared_task(bind=True, name="geoapi.tasks.process_geodata", max_retries=4)
 def process_geodata(self: Task, ip: str, user: str) -> str:  # type: ignore
     response = requests.get(f"{URL}/{ip}", params=REQUEST_PARAMS, timeout=2)
@@ -88,6 +89,8 @@ async def send_worker_status(task_id: str, data: dict) -> None:
     )
 
 
+# TODO: Merge this mess to one, clean function
+# (multiple decorators? use a signal for status changes?)
 @after_task_publish.connect(sender="geoapi.tasks.process_geodata")
 def task_sent_handler(headers: dict, **kwargs):
     async_to_sync(send_worker_status)(headers["id"], {"status": "created"})

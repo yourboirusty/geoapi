@@ -1,6 +1,7 @@
 from celery import Celery
 import os
 
+# TODO: Add visibility
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "geoapi.settings")
 
 app = Celery("geoapi")
