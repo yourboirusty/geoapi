@@ -24,7 +24,7 @@ class GeoDataSerializer(serializers.ModelSerializer):
 
 class WorkerStatusResponseSerializer(serializers.Serializer):
     status = serializers.CharField(max_length=100)
-    message = serializers.CharField(max_length=100, required=False)
+    response = serializers.CharField(max_length=100, allow_blank=True)
 
 
 class AddressLookupSerializer(serializers.Serializer):
