@@ -35,6 +35,5 @@ Can be tested from a browser using [hoppscotch.io](https://hoppscotch.io/pl/real
 - will tell anyone with the ID how's it progressing
 - final response will be a slug to grab the item from REST API.
 
-### Flow diagram
-![Alt text](./docs/img/UserAddressLookup.svg)
-<img src="./docs/img/UserAddressLookup.svg">
+### Communication diagram
+![Address Lookup Diagram](./docs/img/UserAddressLookup.svg)
