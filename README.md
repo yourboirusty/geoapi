@@ -1,5 +1,10 @@
 # GeoApi
+The goal of this project is to allow a user to get a physical location based on the IP or a domain.
 
+Main components of the app:
+- Django Rest Framework synchronous backend for database access and REST API,
+- Celery workers to connect to an external service,
+- Async Django Channels backend to notify user about changes to the worker.
 ## Quickstart
 
 ### Requirements
