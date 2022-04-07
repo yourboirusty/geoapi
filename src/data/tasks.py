@@ -8,8 +8,8 @@ from django.contrib.auth import get_user_model
 from data.models import IPSTACK_FIELDS
 from data.serializers import (
     GeoDataSerializer,
-    WorkerStatusResponseSerializer,
 )
+from data.websocket.serializers import WorkerStatusResponseSerializer
 from celery.signals import (
     after_task_publish,
     task_postrun,

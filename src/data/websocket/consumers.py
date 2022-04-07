@@ -1,6 +1,6 @@
 from typing import Optional
-from data.serializers import WorkerStatusResponseSerializer
-from .utils import StackedAsyncJsonWebsocketConsumer, close_stack
+from data.websocket.serializers import WorkerStatusResponseSerializer
+from data.websocket.utils import StackedAsyncJsonWebsocketConsumer, close_stack
 from data.tasks import process_geodata
 
 
