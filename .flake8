@@ -2,3 +2,6 @@
 per-file-ignores =
     # assigned but not used
     test_*.py: F841
+
+exclude = .git,__pycache__,docs/source/conf.py,old,build,dist,docker,.*,migrations
+max-complexity = 10

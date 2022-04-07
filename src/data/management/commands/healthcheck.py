@@ -1,4 +1,3 @@
-from lib2to3.pytree import Base
 import requests
 from django.core.management.base import BaseCommand
 from sys import exit
