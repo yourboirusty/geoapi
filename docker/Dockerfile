@@ -52,6 +52,6 @@ CMD ["celery", "-A", "geoapi", "worker", "-l", "info"]
 FROM dev-base as dev_asgi
 EXPOSE 8000
 ENTRYPOINT /docker-entrypoint.sh $0 $@
-CMD ["uvicorn", "--reload", "--host=0.0.0.0", "--port=8000", "geoapi:asgi"]
+CMD ["daphne", "-b 0.0.0.0", "-p 8000", "geoapi.asgi:application"]
 
 

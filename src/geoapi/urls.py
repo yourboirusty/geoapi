@@ -43,5 +43,5 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    path("healthcheck/", healthcheck, name="healthcheck"),
+    path("status/", healthcheck, name="healthcheck"),
 ]
