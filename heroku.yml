@@ -12,3 +12,7 @@ build:
     worker:
       dockerfile: docker/Dockerfile
       target: dev_worker
+release:
+  image: web
+  command:
+    - echo 'Starting server after deployment!';
