@@ -7,6 +7,8 @@ from drf_spectacular.utils import extend_schema
 from data.models import GeoData
 from data.serializers import (
     GeoDataSerializer,
+)
+from data.websocket.serializers import (
     AddressLookupSerializer,
     AddressLookupResponseSerializer,
 )

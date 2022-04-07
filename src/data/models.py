@@ -3,11 +3,11 @@ import string
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.utils.crypto import get_random_string
 
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 SLUG_CHARACTERS = string.ascii_uppercase + string.digits[2:]
 
