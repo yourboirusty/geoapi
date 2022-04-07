@@ -18,14 +18,15 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", True)
 
-REDIS_ADDRESS = os.environ.get("REDIS_ADDRESS", "localhost")
+REDIS_ADDRESS = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
 REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 REDIS_USER = os.environ.get("REDIS_USER", "")
 
-REDIS_URL = (
-    f"redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_ADDRESS}:{REDIS_PORT}/0"
-)
+if not (REDIS_URL := os.environ.get("REDIS_URL")):
+    REDIS_URL = (
+        f"redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_ADDRESS}:{REDIS_PORT}/0"
+    )
 
 ALLOWED_HOSTS = [
     "*",
@@ -122,6 +123,12 @@ DATABASES = {
     }
 }
 
+if os.environ.get("DATABASE_URL"):
+    import dj_database_url
+
+    DATABASES["default"] = dj_database_url.config(
+        conn_max_age=600, ssl_require=True
+    )
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -162,6 +169,8 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
