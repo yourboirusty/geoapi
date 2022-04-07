@@ -2,7 +2,6 @@ from pytest import fixture
 from data.models import GeoData
 from rest_framework.test import APIClient
 from requests import Response
-from geoapi.celery import app
 
 
 @fixture

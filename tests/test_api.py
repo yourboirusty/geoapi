@@ -1,7 +1,6 @@
 import pytest
 from django.urls import reverse
 from data.serializers import AddressLookupSerializer
-from requests import codes
 
 
 @pytest.mark.parametrize(
