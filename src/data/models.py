@@ -25,20 +25,6 @@ class GeoDataSlugEnded(Exception):
     pass
 
 
-# TODO: Does it even belong here? Should it be handled by logging instead?
-class FailedWorkerResult(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    task_id = models.CharField(max_length=255, blank=True, null=True)
-
-    worker_name = models.CharField(max_length=255)
-    worker_error = models.TextField()
-    worker_result = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-timestamp"]
-
-
 class GeoData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
