@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  geoapi_backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev_asgi
+    ports:
+      - "8000:8000"
+    depends_on:
+      geoapi_redis:
+        condition: service_healthy
+    environment:
+      - REDIS_ADDRESS=geoapi_redis
+      - REDIS_PORT=6379
+    healthcheck:
+      test: [ "curl", "-f", "http://localhost:8000/health" ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  geoapi_worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev_worker
+    environment:
+      - REDIS_ADDRESS=geoapi_redis
+      - REDIS_PORT=6379
+    depends_on:
+      geoapi_redis:
+        condition: service_healthy
+
+  geoapi_redis:
+    image: redis:alpine
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    ports:
+      - "6379:6379"
