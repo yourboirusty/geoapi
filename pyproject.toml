@@ -26,6 +26,7 @@ drf-spectacular = {extras = ["sidecar"], version = "^0.22.0"}
 uvicorn = "^0.17.6"
 requests = "^2.27.1"
 coverage = "^6.3.2"
+dj-database-url = "^0.5.0"
 
 
 [tool.poetry.dev-dependencies]
