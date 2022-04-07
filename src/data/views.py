@@ -45,5 +45,5 @@ class GeoDataViewSet(viewsets.ModelViewSet):
         serializer = AddressLookupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         address = serializer.validated_data["lookup_address"]  # type: ignore
-        task_id = process_geodata.s(address, request.user.id).apply_async()  # type: ignore
+        task_id = process_geodata.s(address, request.user.id).apply_async()  # type: ignore # noqa E501
         return Response({"task_id": task_id.id})
