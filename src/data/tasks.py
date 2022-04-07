@@ -4,10 +4,9 @@ from django.conf import settings
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
-from geodata.models import FailedWorkerResult, IPSTACK_FIELDS
-from geodata.serializers import (
+from data.models import IPSTACK_FIELDS
+from data.serializers import (
     GeoDataSerializer,
     WorkerStatusResponseSerializer,
 )

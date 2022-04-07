@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from geodata.models import GeoData
+from data.models import GeoData
 
 
 class GeoDataSerializer(serializers.ModelSerializer):

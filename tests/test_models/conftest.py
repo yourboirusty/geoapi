@@ -1,5 +1,5 @@
 from pytest import fixture
-from geodata.models import GeoData
+from data.models import GeoData
 
 
 @fixture
