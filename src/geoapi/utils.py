@@ -1,7 +1,9 @@
 from channels.db import database_sync_to_async
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.http import HttpResponse, HttpRequest
 
 from urllib.parse import urlparse
+
 
 @database_sync_to_async
 def get_user(token):
@@ -21,4 +23,11 @@ class JWTAuthMiddleware:
 
     def __call__(self, scope, receive, send):
         params = urlparse.parse_qs(scope["query_string"])
-        scope["user"] = get_user)(params.get("token")
+        scope["user"] = get_user(params.get("token"))
+
+
+def healthcheck(request: HttpRequest) -> HttpResponse:
+    """
+    Simple heathcheck endpoint.
+    """
+    return HttpResponse("ok", status=200)

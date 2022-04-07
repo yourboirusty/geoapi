@@ -13,6 +13,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from geoapi.utils import healthcheck
 
 router = routers.DefaultRouter()
 router.register(r"geodata", GeoDataViewSet, basename="geodata")
@@ -42,4 +43,5 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
+    path("healthcheck/", healthcheck, name="healthcheck"),
 ]
