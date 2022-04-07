@@ -20,7 +20,7 @@ services:
       geoapi_db:
         condition: service_healthy
     environment:
-      - REDIS_ADDRESS=geoapi_redis
+      - REDIS_HOST=geoapi_redis
       - REDIS_PORT=6379
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=geoapi
@@ -35,7 +35,7 @@ services:
       dockerfile: docker/Dockerfile
       target: dev_worker
     environment:
-      - REDIS_ADDRESS=geoapi_redis
+      - REDIS_HOST=geoapi_redis
       - REDIS_PORT=6379
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=geoapi
