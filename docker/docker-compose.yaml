@@ -6,20 +6,28 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: dev_asgi
+    healthcheck:
+      test: [ "CMD-SHELL", "./manage.py healthcheck" ]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 5s
     ports:
       - "8000:8000"
     depends_on:
       geoapi_redis:
         condition: service_healthy
+      geoapi_db:
+        condition: service_healthy
     environment:
       - REDIS_ADDRESS=geoapi_redis
       - REDIS_PORT=6379
-    healthcheck:
-      test: [ "curl", "-f", "http://localhost:8000/health" ]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=geoapi
+      - POSTGRES_DB=geoapi
+      - POSTGRES_HOST=geoapi_db
+    volumes:
+      - ../src/:/app
 
   geoapi_worker:
     build:
@@ -29,8 +37,11 @@ services:
     environment:
       - REDIS_ADDRESS=geoapi_redis
       - REDIS_PORT=6379
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=geoapi
+      - POSTGRES_DB=geoapi
     depends_on:
-      geoapi_redis:
+      geoapi_backend:
         condition: service_healthy
 
   geoapi_redis:
@@ -43,3 +54,19 @@ services:
       start_period: 15s
     ports:
       - "6379:6379"
+
+  geoapi_db:
+    image: postgres:alpine
+    user: postgres
+    environment:
+      - POSTGRES_PASSWORD=geoapi
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=geoapi
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
