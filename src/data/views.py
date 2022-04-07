@@ -4,13 +4,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
-from geodata.models import GeoData
-from geodata.serializers import (
+from data.models import GeoData
+from data.serializers import (
     GeoDataSerializer,
     AddressLookupSerializer,
     AddressLookupResponseSerializer,
 )
-from geodata.tasks import process_geodata
+from data.tasks import process_geodata
 
 
 class GeoDataViewSet(viewsets.ModelViewSet):

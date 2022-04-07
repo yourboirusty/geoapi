@@ -1,5 +1,5 @@
 import pytest
-from geodata.models import GeoData, GeoDataSlugEnded
+from data.models import GeoData, GeoDataSlugEnded
 
 
 def test_slug_generation(db, django_user_model, django_assert_num_queries):
@@ -32,6 +32,6 @@ def test_slug_generation_with_multiple_saves(
 def test_slug_duplicate_regeneration(mocker, db, geodata_object, geodata_dict):
     slug = geodata_object.slug
 
-    m = mocker.patch("geodata.models.get_random_string", return_value=slug)
+    m = mocker.patch("data.models.get_random_string", return_value=slug)
     with pytest.raises(GeoDataSlugEnded):
         new_geodata_object = GeoData.objects.create(**geodata_dict)

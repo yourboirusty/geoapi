@@ -24,10 +24,7 @@ ALLOWED_HOSTS = [
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
 
@@ -41,7 +38,7 @@ DEPENDENCIES = [
 ]
 
 PROJECT_APPS = [
-    "geodata",
+    "data",
 ]
 
 INSTALLED_APPS = (
@@ -169,10 +166,12 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
 }
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_BROKER_BACKEND = "memory"
+CELERY_RESULT_BACKEND = "memory"
 CELERY_RESULT_EXTENDED = True
-DEFAULT_RETRY_DELAY = 1
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_DEFAULT_RETRY_DELAY = 1
 
-IPSTACK_KEY = os.environ.get("IPSTACK_KEY", "1e4548b006bc1e6e0e3e0e2d021f94b5")
+IPSTACK_KEY = os.environ.get("IPSTACK_KEY", "invalidkey")
 IPSTACK_URL = os.environ.get("IPSTACK_URL", "http://api.ipstack.com/")
