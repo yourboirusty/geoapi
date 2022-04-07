@@ -6,10 +6,5 @@ class WorkerStatusResponseSerializer(serializers.Serializer):
     response = serializers.CharField(max_length=100, allow_blank=True)
 
 
-# TODO: Add validation to check if loopup address is compliant
-class AddressLookupSerializer(serializers.Serializer):
-    lookup_address = serializers.CharField(max_length=100)
-
-
 class AddressLookupResponseSerializer(serializers.Serializer):
     task_id = serializers.CharField(max_length=100)
