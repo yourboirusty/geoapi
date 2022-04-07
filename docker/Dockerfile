@@ -30,8 +30,7 @@ WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./
 RUN poetry install --no-dev
 
-
-FROM python-base as development
+FROM python-base as dev-base
 # Copying poetry and venv into image
 COPY --from=builder-base $POETRY_HOME $POETRY_HOME
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
@@ -47,7 +46,12 @@ RUN poetry install
 WORKDIR /app
 COPY ./src .
 
+FROM dev-base as dev_worker
+CMD ["celery", "-A", "geoapi", "worker", "-l", "info"]
+
+FROM dev-base as dev_asgi
 EXPOSE 8000
 ENTRYPOINT /docker-entrypoint.sh $0 $@
 CMD ["uvicorn", "--reload", "--host=0.0.0.0", "--port=8000", "geoapi:asgi"]
+
 

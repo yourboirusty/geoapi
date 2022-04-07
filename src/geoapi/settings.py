@@ -18,6 +18,15 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", True)
 
+REDIS_ADDRESS = os.environ.get("REDIS_ADDRESS", "localhost")
+REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
+REDIS_USER = os.environ.get("REDIS_USER", "")
+
+REDIS_URL = (
+    f"redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_ADDRESS}:{REDIS_PORT}/0"
+)
+
 ALLOWED_HOSTS = [
     "*",
 ]
@@ -26,7 +35,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
         "CONFIG": {
-            "hosts": [("localhost", 6379)],
+            "hosts": [(REDIS_URL)],
         },
     },
 }
@@ -169,8 +178,8 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
 }
 
-CELERY_BROKER_URL = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_RESULT_EXTENDED = True
 DEFAULT_RETRY_DELAY = 1
 
