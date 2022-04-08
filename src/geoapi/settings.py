@@ -41,6 +41,7 @@ CHANNEL_LAYERS = {
     },
 }
 
+
 DEPENDENCIES = [
     "channels",
     "django_filters",
@@ -52,6 +53,7 @@ DEPENDENCIES = [
 
 PROJECT_APPS = [
     "data",
+    "authentication",
 ]
 
 INSTALLED_APPS = (
@@ -147,6 +149,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",  # noqa E501
     },
 ]
+
+AUTH_USER_MODEL = "authentication.User"
 
 
 # Internationalization
