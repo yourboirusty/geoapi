@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import string
 
 # TODO: Start using dotenv
 
@@ -15,6 +16,8 @@ SECRET_KEY = os.environ.get(
     "DANGO_SECRET",
     "django-insecure-)f4#vrs0b%)o-^8uhim#3c_x1e!61^%xq_s-i)$zo&ag$hj*d&",
 )
+
+SLUG_CHARACTERS = string.ascii_uppercase + string.digits[2:]
 
 DEBUG = os.environ.get("DEBUG", True)
 

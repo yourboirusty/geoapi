@@ -1,13 +1,19 @@
 from channels.db import database_sync_to_async
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from urllib.parse import urlparse
+from rest_framework_simplejwt.authentication import (
+    JWTAuthentication,
+    InvalidToken,
+)
+import jwt
+from django.conf import settings
+from urllib.parse import urlparse, parse_qs
 
 
 @database_sync_to_async
 def get_user(token):
     authenticator = JWTAuthentication()
-    payload = authenticator.get_validated_token(token)
-    return payload["user"]
+    authenticator.get_validated_token(token)
+    claims = jwt.decode(token, options={"verify_signature": False})
+    return claims
 
 
 class JWTAuthMiddleware:
@@ -16,9 +22,15 @@ class JWTAuthMiddleware:
     for ASGI requests.
     """
 
-    def __init__(self, app: object):
+    def __init__(self, app):
         self.app = app
 
-    def __call__(self, scope, receive, send):
-        params = urlparse.parse_qs(scope["query_string"])
-        scope["user"] = get_user(params.get("token"))
+    async def __call__(self, scope, receive, send):
+        parsed_url = urlparse(scope["path"])
+        query_params = parse_qs(parsed_url.query)
+        try:
+            user = await get_user(query_params["token"][0])
+            scope["user"] = user
+        except (InvalidToken, KeyError, IndexError):
+            pass
+        return await self.app(scope, receive, send)
