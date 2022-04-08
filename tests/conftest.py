@@ -1,6 +1,7 @@
 from pytest import fixture
 from data.models import GeoData
 from rest_framework.test import APIClient
+from authentication.serializers import UserTokenObtainPairSerializer
 from requests import Response
 
 
@@ -12,6 +13,12 @@ def rest_client():
 @fixture
 def geodata_user(db, django_user_model):
     return django_user_model.objects.create(username="geodata_user")
+
+
+@fixture
+def geodata_user_token_pair(geodata_user):
+    pair = UserTokenObtainPairSerializer.get_token(geodata_user)
+    return str(pair), str(pair.access_token)
 
 
 @fixture
