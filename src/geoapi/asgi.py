@@ -19,7 +19,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
 routes = [
     path(
-        "ws/geodata/<task_id>",
+        "ws/geodata",
         WorkerResponseConsumer.as_asgi(),  # type: ignore
         name="worker_response",
     ),
