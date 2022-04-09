@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import string
 
 # TODO: Start using dotenv
 
@@ -15,6 +16,8 @@ SECRET_KEY = os.environ.get(
     "DANGO_SECRET",
     "django-insecure-)f4#vrs0b%)o-^8uhim#3c_x1e!61^%xq_s-i)$zo&ag$hj*d&",
 )
+
+SLUG_CHARACTERS = string.ascii_uppercase + string.digits[2:]
 
 DEBUG = os.environ.get("DEBUG", True)
 
@@ -41,6 +44,7 @@ CHANNEL_LAYERS = {
     },
 }
 
+
 DEPENDENCIES = [
     "channels",
     "django_filters",
@@ -52,6 +56,7 @@ DEPENDENCIES = [
 
 PROJECT_APPS = [
     "data",
+    "authentication",
 ]
 
 INSTALLED_APPS = (
@@ -148,6 +153,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "authentication.User"
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -191,10 +198,17 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
 }
 
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
-CELERY_RESULT_EXTENDED = True
-DEFAULT_RETRY_DELAY = 1
+# Clean up redis url for celery
+REDIS_URL_CELERY = REDIS_URL
 
-IPSTACK_KEY = os.environ.get("IPSTACK_KEY", "1e4548b006bc1e6e0e3e0e2d021f94b5")
+if REDIS_URL.split("//")[1].split("@")[0][-1] == ":":
+    REDIS_URL_CELERY = "redis://" + REDIS_URL.split("@")[1]
+
+CELERY_BROKER_URL = REDIS_URL_CELERY
+CELERY_RESULT_BACKEND = REDIS_URL_CELERY
+CELERY_RESULT_EXTENDED = True
+CELERY_DEFAULT_RETRY_DELAY = 1
+CELERY_MAX_RETRIES = 3
+
+IPSTACK_KEY = os.environ.get("IPSTACK_KEY", "ff16ee73f69d8effdc51bc591ed02949")
 IPSTACK_URL = os.environ.get("IPSTACK_URL", "http://api.ipstack.com/")

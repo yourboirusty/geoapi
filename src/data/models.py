@@ -1,5 +1,3 @@
-import string
-
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -9,7 +7,6 @@ from django.utils.crypto import get_random_string
 
 User = settings.AUTH_USER_MODEL
 
-SLUG_CHARACTERS = string.ascii_uppercase + string.digits[2:]
 
 IPSTACK_FIELDS = [
     "continent_name",
@@ -54,9 +51,8 @@ def pre_save_slug(sender, instance: GeoData, *args, **kwargs):
         return
     for x in range(50):
         instance.slug = get_random_string(
-            length=8, allowed_chars=SLUG_CHARACTERS
+            length=8, allowed_chars=settings.SLUG_CHARACTERS
         )
-        # TODO: Figure out why this uses 3 db calls
         if not sender.objects.filter(slug=instance.slug).exists():
             break
         if x == 49:

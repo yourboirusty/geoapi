@@ -14,6 +14,9 @@ class StackedAsyncJsonWebsocketConsumer(AsyncJsonWebsocketConsumer):
         self._runstack = []
         super().__init__(*args, **kwargs)
 
+    def _send(self, data: dict) -> None:
+        self._append_runstack(self.send_json(content=data))
+
     async def _await_stack(self):
         await asyncio.gather(*self._runstack)
 
@@ -31,7 +34,7 @@ class StackedAsyncJsonWebsocketConsumer(AsyncJsonWebsocketConsumer):
         self._runstack.append(coroutine)
         return len(self._runstack) - 1
 
-    def _pop_runstack(self, index: int) -> Coroutine:
+    def _pop_runstack(self, index: int = -1) -> Coroutine:
         """Pops a coroutine from the running stack.
         Returns the popped coroutine.
         """

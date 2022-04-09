@@ -23,10 +23,12 @@ Main components of the app:
 
 ### WS
 Can be tested from a browser using [hoppscotch.io](https://hoppscotch.io/pl/realtime).
-#### ws://localhost:8000/ws/geodata/<str:task-id>
-- no auth
-- will tell anyone with the ID how's it progressing
-- final response will be a slug to grab the item from REST API.
-
+#### ws://localhost:8000/ws/geodata?token=<jwt_token>
+- final response will be a slug to grab the item from REST API (or `status:"FAILURE"`)
+- accepts `{task_id: <task_id>}` as input, returns task status,
+- alternatively, `GET geodata/lookup/?task_id=<task_id>`
 ### Communication diagram
 ![Address Lookup Diagram](./docs/img/UserAddressLookup.svg)
+
+### Known issues
+- Communication between Celery and Channels is down. Message pushing doesn't work, even though all individual components seem to be working.
