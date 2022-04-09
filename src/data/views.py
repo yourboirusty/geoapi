@@ -40,9 +40,8 @@ class GeoDataViewSet(viewsets.ModelViewSet):
     )
     @action(methods=["post"], detail=False)
     def lookup(self, request: Request, *args, **kwargs):
-        # TODO: Move this out of the function (decorator?)
         serializer = AddressLookupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         address = serializer.validated_data["lookup_address"]  # type: ignore
-        task_id = process_geodata.s(address, request.user.id).apply_async()  # type: ignore # noqa E501
+        task_id = process_geodata.s(address, request.user.slug).apply_async()  # type: ignore # noqa E501
         return Response({"task_id": task_id.id})
