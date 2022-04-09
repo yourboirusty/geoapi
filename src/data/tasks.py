@@ -4,12 +4,14 @@ from django.conf import settings
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from django.contrib.auth import get_user_model
 from data.models import IPSTACK_FIELDS
 from data.serializers import (
     GeoDataSerializer,
 )
-from data.websocket.serializers import WorkerStatusResponseSerializer
+from authentication.models import User
+from data.websocket.serializers import (
+    WorkerStatusResponseSerializer,
+)
 from celery.signals import (
     after_task_publish,
     task_postrun,
@@ -17,14 +19,13 @@ from celery.signals import (
     task_retry,
 )
 
+from typing import Type
 from celery.app.task import Task
 from celery.utils.log import get_task_logger
 
 from celery import shared_task, states
 from celery.exceptions import Ignore, BackendError
 
-
-User = get_user_model()
 
 URL = settings.IPSTACK_URL.rstrip("/")
 
@@ -42,22 +43,10 @@ logger = get_task_logger(__name__)
 
 # TODO: Cleanup
 @shared_task(bind=True, name="geoapi.tasks.process_geodata", max_retries=4)
-def process_geodata(self: Task, ip: str, user: str) -> str:  # type: ignore
-    response = requests.get(f"{URL}/{ip}", params=REQUEST_PARAMS, timeout=2)
-    try:
-        user = User.objects.get(id=user)
-    except User.DoesNotExist:
-        logger.error(f"User {user} does not exist")
-        self.update_state(state=states.FAILURE, meta="User does not exist")
-        raise Ignore()
-    try:
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        self.retry(exc=e)
-    data = response.json()
+def process_geodata(self: Task, ip: str, user_slug: str) -> str:  # type: ignore # noqa E501
+    user = login_user(self, user_slug)
 
-    if not data.get("success"):
-        self.retry(exc=BackendError(response.json()))
+    data = get_geodata_from_ip(self, ip)
 
     data.update({"address": ip, "user": user, "task_id": self.request.id})
     serializer = GeoDataSerializer(data=data)
@@ -73,6 +62,29 @@ def process_geodata(self: Task, ip: str, user: str) -> str:  # type: ignore
             raise Ignore()
     else:
         self.retry(exc=BackendError(serializer.errors))
+
+
+def get_geodata_from_ip(self, ip):
+    response = requests.get(f"{URL}/{ip}", params=REQUEST_PARAMS, timeout=2)
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        self.retry(exc=e)
+    data = response.json()
+
+    if not data.get("success"):
+        self.retry(exc=BackendError(response.json()))
+    return data
+
+
+def login_user(self, user_slug: str) -> Type[User]:
+    try:
+        user = User.objects.get(slug=user_slug)
+    except User.DoesNotExist:
+        logger.error(f"User {user_slug} does not exist")
+        self.update_state(state=states.FAILURE, meta="User does not exist")
+        raise Ignore()
+    return user
 
 
 async def send_worker_status(task_id: str, data: dict) -> None:
