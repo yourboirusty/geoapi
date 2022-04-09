@@ -4,8 +4,7 @@ from rest_framework_simplejwt.authentication import (
     InvalidToken,
 )
 import jwt
-from django.conf import settings
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs
 
 
 @database_sync_to_async

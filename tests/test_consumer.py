@@ -1,4 +1,3 @@
-from unittest.mock import PropertyMock
 import pytest
 from collections import namedtuple
 

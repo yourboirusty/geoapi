@@ -53,7 +53,7 @@ def process_geodata(self: Task, ip: str, user_slug: str) -> str:  # type: ignore
 
     data = get_geodata_from_ip(self, ip)
 
-    data.update({"address": ip, "user": user.id, "task_id": self.request.id})
+    data.update({"address": ip, "user": user.pk, "task_id": self.request.id})
     serializer = GeoDataSerializer(data=data)
     if serializer.is_valid():
         try:

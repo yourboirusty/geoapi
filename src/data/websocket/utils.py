@@ -1,6 +1,6 @@
 import asyncio
 from functools import wraps
-from typing import Coroutine, Optional
+from typing import Coroutine
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 

@@ -1,5 +1,6 @@
 import os
-from geoapi.settings import *
+from pathlib import Path
+from geoapi.settings import *  # noqa F401
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
