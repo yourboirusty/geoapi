@@ -1,13 +1,64 @@
 from pytest import fixture
 from data.models import GeoData
+from data.tasks import process_geodata
 from rest_framework.test import APIClient
 from authentication.serializers import UserTokenObtainPairSerializer
+from data.websocket.consumers import WorkerResponseConsumer
+from data.websocket.utils import StackedAsyncJsonWebsocketConsumer
+from unittest.mock import PropertyMock
+from .utils import AsyncMock
 from requests import Response
 
 
 @fixture
 def rest_client():
     return APIClient()
+
+
+@fixture
+def consumer():
+    consumer = WorkerResponseConsumer()
+    consumer.scope = PropertyMock()
+    consumer.channel_layer = AsyncMock()
+    consumer.channel_name = "CHANNEL1"
+    return consumer
+
+
+@fixture
+def authorized_consumer(consumer):
+    consumer.scope = {
+        "user": {
+            "id": 1,
+            "slug": "USER1",
+        }
+    }
+    return consumer
+
+
+@fixture
+def unauthorized_consumer(consumer):
+    consumer.scope = {"user": None}
+    return consumer
+
+
+@fixture
+def accept_consumer_mocker(mocker):
+    return mocker.patch.object(StackedAsyncJsonWebsocketConsumer, "accept")
+
+
+@fixture
+def close_consumer_mocker(mocker):
+    return mocker.patch.object(StackedAsyncJsonWebsocketConsumer, "close")
+
+
+@fixture
+def send_consumer_mocker(mocker):
+    return mocker.patch.object(StackedAsyncJsonWebsocketConsumer, "_send")
+
+
+@fixture
+def geodata_result_mocker(mocker):
+    return mocker.patch.object(process_geodata, "AsyncResult")
 
 
 @fixture
