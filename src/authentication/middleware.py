@@ -26,8 +26,7 @@ class JWTAuthMiddleware:
         self.app = app
 
     async def __call__(self, scope, receive, send):
-        parsed_url = urlparse(scope["path"])
-        query_params = parse_qs(parsed_url.query)
+        query_params = parse_qs(scope["query_string"].decode("utf-8"))
         try:
             user = await get_user(query_params["token"][0])
             scope["user"] = user
