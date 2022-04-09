@@ -7,6 +7,7 @@ class GeoDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = GeoData
         fields = (
+            "user",
             "slug",
             "timestamp",
             "address",
@@ -19,7 +20,6 @@ class GeoDataSerializer(serializers.ModelSerializer):
         )
 
         read_only_fields = ("slug", "timestamp", "address")
-
         lookup_field = "slug"
 
 

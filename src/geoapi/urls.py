@@ -8,11 +8,9 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 from data.views import GeoDataViewSet
+from authentication.views import UserTokenObtainPairView
 from rest_framework import routers
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
 from geoapi.utils import healthcheck
 
 router = routers.DefaultRouter()
@@ -24,7 +22,7 @@ urlpatterns = [
     path("api/v1/", include(router.urls)),
     path(
         "api/auth/token/",
-        TokenObtainPairView.as_view(),
+        UserTokenObtainPairView.as_view(),
         name="token_obtain_pair",
     ),
     path(

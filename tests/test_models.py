@@ -3,9 +3,10 @@ from data.models import GeoData, GeoDataSlugEnded
 
 
 def test_slug_generation(db, django_user_model, django_assert_num_queries):
-    with django_assert_num_queries(3):
+    user = django_user_model.objects.create(username="geodata_user")
+    with django_assert_num_queries(2):
         geodata_object = GeoData.objects.create(
-            user=django_user_model.objects.create(username="geodata_user"),
+            user=user,
             task_id="1",
             address="127.0.0.1",
             continent_name="North America",

@@ -10,7 +10,7 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 import os
 from django.urls import path
 from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
+from authentication.middleware import JWTAuthMiddleware
 from data.websocket.consumers import WorkerResponseConsumer
 
 from django.core.asgi import get_asgi_application
@@ -19,7 +19,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
 routes = [
     path(
-        "ws/geodata/<task_id>",
+        "ws/geodata",
         WorkerResponseConsumer.as_asgi(),  # type: ignore
         name="worker_response",
     ),
@@ -28,6 +28,6 @@ routes = [
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        "websocket": AuthMiddlewareStack(URLRouter(routes)),
+        "websocket": JWTAuthMiddleware(URLRouter(routes)),
     }
 )

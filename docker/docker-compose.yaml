@@ -40,9 +40,12 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=geoapi
       - POSTGRES_DB=geoapi
+      - POSTGRES_HOST=geoapi_db
     depends_on:
       geoapi_backend:
         condition: service_healthy
+    volumes:
+      - ../src/:/app
 
   geoapi_redis:
     image: redis:alpine
