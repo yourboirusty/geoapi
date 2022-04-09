@@ -42,13 +42,18 @@ logger = get_task_logger(__name__)
 
 
 # TODO: Cleanup
-@shared_task(bind=True, name="geoapi.tasks.process_geodata", max_retries=4)
+@shared_task(
+    bind=True,
+    name="geoapi.tasks.process_geodata",
+    max_retries=2,
+    default_retry_delay=2,
+)
 def process_geodata(self: Task, ip: str, user_slug: str) -> str:  # type: ignore # noqa E501
     user = login_user(self, user_slug)
 
     data = get_geodata_from_ip(self, ip)
 
-    data.update({"address": ip, "user": user, "task_id": self.request.id})
+    data.update({"address": ip, "user": user.id, "task_id": self.request.id})
     serializer = GeoDataSerializer(data=data)
     if serializer.is_valid():
         try:
@@ -57,7 +62,8 @@ def process_geodata(self: Task, ip: str, user_slug: str) -> str:  # type: ignore
         except Exception as e:
             logger.error(f"Cannot write to database: {e}")
             self.update_state(
-                state=states.FAILURE, meta="Cannot write to database"
+                state=states.FAILURE,
+                meta={"reason": "Cannot write to database"},
             )
             raise Ignore()
     else:
@@ -72,7 +78,8 @@ def get_geodata_from_ip(self, ip):
         self.retry(exc=e)
     data = response.json()
 
-    if not data.get("success"):
+    # Success can only be false (???)
+    if not data.get("success", True):
         self.retry(exc=BackendError(response.json()))
     return data
 
@@ -87,40 +94,39 @@ def login_user(self, user_slug: str) -> Type[User]:
     return user
 
 
-async def send_worker_status(task_id: str, data: dict) -> None:
+def send_worker_status(user_slug: str, data: dict) -> None:
     serializer = WorkerStatusResponseSerializer(data=data)
     serializer.is_valid(raise_exception=True)
-    await channel_layer.group_send(  # type: ignore
-        task_id,
+    async_to_sync(channel_layer.group_send)(  # type: ignore
+        user_slug,
         {
             "type": "worker_status",
             "timestamp": datetime.now().isoformat(),
-            "status": serializer.data,
+            **serializer.validated_data,
         },
     )
 
 
-# TODO: Merge this mess to one, clean function
-# (multiple decorators? use a signal for status changes?)
+# TODO: Cleanup
 @after_task_publish.connect(sender="geoapi.tasks.process_geodata")
 def task_sent_handler(headers: dict, **kwargs):
-    async_to_sync(send_worker_status)(headers["id"], {"status": "created"})
+    send_worker_status(headers["id"], {"status": "created"})
 
 
 @task_prerun.connect(sender="geoapi.tasks.process_geodata")
-def task_received_handler(task_id, **kwargs):
-    async_to_sync(send_worker_status)(task_id, {"status": "running"})
+def task_received_handler(args, **kwargs):
+    send_worker_status(args[1], {"status": states.RECEIVED})
 
 
 @task_postrun.connect(sender="geoapi.tasks.process_geodata")
-def task_postrun_handler(task_id, state, retval, **kwargs):
-    async_to_sync(send_worker_status)(
-        task_id, {"status": state.lower, "retval": retval}
-    )
+def task_postrun_handler(args, state, retval, **kwargs):
+    send_worker_status(args[1], {"status": state, "response": str(retval)})
 
 
 @task_retry.connect(sender="geoapi.tasks.process_geodata")
 def task_retry_handler(request, reason, **kwargs):
+    print(request)
+    print(f"Retrying task {request.args[1]}")
     async_to_sync(send_worker_status)(
-        request.task_id, {"status": "retrying", "reason": str(reason)}
+        request.args[1], {"status": states.RETRY, "response": str(reason)}
     )
