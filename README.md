@@ -16,6 +16,12 @@ Main components of the app:
 1. `docker-compose --file docker/docker-compose.yaml up --build`
 
 
+### Default configuration
+`username: root`
+`password: 4321tset` but backwards
+
+Some geodata will be available.
+
 ## Documentation
 
 ### REST API
@@ -30,5 +36,11 @@ Can be tested from a browser using [hoppscotch.io](https://hoppscotch.io/pl/real
 ### Communication diagram
 ![Address Lookup Diagram](./docs/img/UserAddressLookup.svg)
 
+
+### Online version
+https://rusty-geoapi.herokuapp.com/
+
+
 ### Known issues
-- Communication between Celery and Channels is down. Message pushing doesn't work, even though all individual components seem to be working.
+- Communication between Celery and Channels is down. Message pushing doesn't work. User has to manually query for status.
+- Multiple lookups of same address could be cached to minimize amount of requests to external API.
