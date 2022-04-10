@@ -17,10 +17,14 @@ Main components of the app:
 2. Keep in mind `.env` file needs to be placed in `docker/` directory.
 
 ### Default configuration
-`username: root`
+`username: root` as is
+
 `password: 4321tset` but backwards
 
 Some geodata will be available.
+
+### Environment variables
+IPStack key needs to be placed in `docker/.env` file, as `IPSTACK_KEY=<key>`
 
 ## Documentation
 
