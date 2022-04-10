@@ -29,7 +29,7 @@ class GeoData(models.Model):
     task_id = models.CharField(max_length=255)
 
     # Ideally this part would be noSQL, but it'll do
-    address = models.CharField(max_length=15)
+    address = models.CharField(max_length=45)
     continent_name = models.CharField(max_length=255)
     country_name = models.CharField(max_length=255)
     region_name = models.CharField(max_length=255)

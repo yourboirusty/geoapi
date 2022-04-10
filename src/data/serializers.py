@@ -19,7 +19,7 @@ class GeoDataSerializer(serializers.ModelSerializer):
             "longitude",
         )
 
-        read_only_fields = ("slug", "timestamp", "address")
+        read_only_fields = ("slug", "timestamp")
         lookup_field = "slug"
 
 
