@@ -14,7 +14,7 @@ Main components of the app:
 
 ### Docker instructions
 1. `docker-compose --file docker/docker-compose.yaml up --build`
-
+2. Keep in mind `.env` file needs to be placed in `docker/` directory.
 
 ### Default configuration
 `username: root`
