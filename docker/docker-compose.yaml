@@ -28,12 +28,16 @@ services:
       - POSTGRES_HOST=geoapi_db
     volumes:
       - ../src/:/app
+    env_file:
+      - .env
 
   geoapi_worker:
     build:
       context: ..
       dockerfile: docker/Dockerfile
       target: dev_worker
+    env_file:
+      - .env
     environment:
       - REDIS_HOST=geoapi_redis
       - REDIS_PORT=6379
@@ -65,6 +69,7 @@ services:
       - POSTGRES_PASSWORD=geoapi
       - POSTGRES_USER=postgres
       - POSTGRES_DB=geoapi
+
     ports:
       - "5432:5432"
     healthcheck:
