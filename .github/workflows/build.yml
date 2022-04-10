@@ -1,0 +1,38 @@
+on:
+  push:
+    branches: ['master']
+
+jobs:
+  generate-requirements:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.1.10
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+
+      - name: Generate requirements from lockfile
+        run: |
+          poetry export -f requirements.txt --output src/requirements.txt
+
+      - name: Commit changes
+        run: |
+          git config --local user.name "pipeline"
+          git add src/requirements.txt
+          git commit -m "Updating requirements.txt"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
