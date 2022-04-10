@@ -9,13 +9,16 @@ https://docs.djangoproject.com/en/3.2/howto/deployment/asgi/
 
 import os
 from django.urls import path
-from channels.routing import ProtocolTypeRouter, URLRouter
-from authentication.middleware import JWTAuthMiddleware
-from data.websocket.consumers import WorkerResponseConsumer
-
 from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
+django_asgi_app = get_asgi_application()
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "geoapi.settings")
+
+from authentication.middleware import JWTAuthMiddleware  # noqa E402
+from data.websocket.consumers import WorkerResponseConsumer  # noqa E402
+
 
 routes = [
     path(
@@ -27,7 +30,7 @@ routes = [
 
 application = ProtocolTypeRouter(
     {
-        "http": get_asgi_application(),
+        "http": django_asgi_app,
         "websocket": JWTAuthMiddleware(URLRouter(routes)),
     }
 )
