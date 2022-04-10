@@ -1,3 +1,5 @@
+name: Build
+
 on:
   push:
     branches: ['master']
@@ -21,6 +23,14 @@ jobs:
           virtualenvs-in-project: true
           installer-parallel: true
 
+      - name: Check if lockfile was changed
+        id: check-lock
+        run: |
+          git diff --exit-code poetry.lock
+
+      - name: Cancel job if not changed
+        if: steps.check-lock.outputs.OUTPUT == 0
+        uses: andymckay/cancel-action@0.2
 
       - name: Generate requirements from lockfile
         run: |
