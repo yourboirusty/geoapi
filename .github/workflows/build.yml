@@ -15,7 +15,13 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Check if lockfile was changed
+        id: check-lock
+        run: |
+          git diff --exit-code poetry.lock
+
       - name: Install Poetry
+        if: steps.check-lock.outputs.OUTPUT == 1
         uses: snok/install-poetry@v1
         with:
           version: 1.1.10
@@ -23,26 +29,20 @@ jobs:
           virtualenvs-in-project: true
           installer-parallel: true
 
-      - name: Check if lockfile was changed
-        id: check-lock
-        run: |
-          git diff --exit-code poetry.lock
-
-      - name: Cancel job if not changed
-        if: steps.check-lock.outputs.OUTPUT == 0
-        uses: andymckay/cancel-action@0.2
-
       - name: Generate requirements from lockfile
+        if: steps.check-lock.outputs.OUTPUT == 1
         run: |
           poetry export -f requirements.txt --output src/requirements.txt
 
       - name: Commit changes
+        if: steps.check-lock.outputs.OUTPUT == 1
         run: |
           git config --local user.name "pipeline"
           git add src/requirements.txt
           git commit -m "Updating requirements.txt"
 
       - name: Push changes
+        if: steps.check-lock.outputs.OUTPUT == 1
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
