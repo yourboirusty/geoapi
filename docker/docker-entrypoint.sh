@@ -8,4 +8,6 @@ set -e
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
+python manage.py user_exists || python manage.py loadddata fixtures/seed.json
+
 exec "$@"
