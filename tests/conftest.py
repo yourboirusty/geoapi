@@ -1,13 +1,14 @@
 from pytest import fixture
 from data.models import GeoData
+import data.tasks
 from data.tasks import process_geodata
 from rest_framework.test import APIClient
 from authentication.serializers import UserTokenObtainPairSerializer
 from data.websocket.consumers import WorkerResponseConsumer
 from data.websocket.utils import StackedAsyncJsonWebsocketConsumer
-from unittest.mock import PropertyMock
+from unittest.mock import MagicMock, PropertyMock
 from .utils import AsyncMock
-from requests import Response
+import requests
 
 
 @fixture
@@ -63,7 +64,10 @@ def geodata_result_mocker(mocker):
 
 @fixture
 def geodata_user(db, django_user_model):
-    return django_user_model.objects.create(username="geodata_user")
+    user = django_user_model.objects.create(username="geodata_user")
+    user.slug = "USER1"
+    user.save()
+    return user
 
 
 @fixture
@@ -73,18 +77,25 @@ def geodata_user_token_pair(geodata_user):
 
 
 @fixture
-def geodata_dict(db, geodata_user):
+def worker_sender_mocker(mocker):
+    return mocker.patch.object(data.tasks, "send_worker_status")
+
+
+@fixture
+def ipstack_dict():
     return {
-        "user": geodata_user,
-        "task_id": "1",
-        "address": "127.0.0.1",
         "continent_name": "North America",
         "country_name": "United States",
         "region_name": "California",
-        "city": "San Francisco",
-        "latitude": "37.7749",
-        "longitude": "-122.4194",
+        "city": "Los Angeles",
+        "latitude": 34.0453,
+        "longitude": -118.2413,
     }
+
+
+@fixture
+def geodata_dict(db, ipstack_dict, geodata_user):
+    return {"user": geodata_user, "task_id": "1", **ipstack_dict}
 
 
 @fixture
@@ -94,9 +105,25 @@ def geodata_object(db, geodata_dict):
 
 @fixture
 def good_response():
-    response = Response()
-    response.status_code = 200
+    response = MagicMock(spec=requests.Response)
+    response.status_code = PropertyMock(return_value=200)
     return response
+
+
+@fixture
+def ipstack_response(good_response, ipstack_dict):
+    response = good_response
+    response.json = MagicMock(return_value=ipstack_dict)
+    return response
+
+
+@fixture
+def ipstack_request_mock(mocker, ipstack_response):
+    return mocker.patch.object(
+        requests,
+        "get",
+        return_value=ipstack_response,
+    )
 
 
 @fixture
@@ -111,3 +138,11 @@ def good_ipstack_response(good_response):
     }
 
     return good_response
+
+
+@fixture(scope="session")
+def celery_includes():
+    return [
+        "tests.test_tasks",
+        "data.tasks",
+    ]
