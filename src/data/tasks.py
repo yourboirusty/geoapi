@@ -13,10 +13,10 @@ from data.websocket.serializers import (
     WorkerStatusResponseSerializer,
 )
 from celery.signals import (
-    after_task_publish,
     task_postrun,
     task_prerun,
     task_retry,
+    task_internal_error,
 )
 
 from typing import Type
@@ -41,7 +41,13 @@ if not channel_layer:
 logger = get_task_logger(__name__)
 
 
-# TODO: Cleanup
+@shared_task(bind=True, name="geoapi.tasks.clear_results")
+def clear_results(self, task_id: str) -> None:
+    """
+    Clears the results of a Celery task.
+    """
+
+
 @shared_task(
     bind=True,
     name="geoapi.tasks.process_geodata",
@@ -108,25 +114,29 @@ def send_worker_status(user_slug: str, data: dict) -> None:
 
 
 # TODO: Cleanup
-@after_task_publish.connect(sender="geoapi.tasks.process_geodata")
-def task_sent_handler(headers: dict, **kwargs):
-    send_worker_status(headers["id"], {"status": "created"})
-
-
-@task_prerun.connect(sender="geoapi.tasks.process_geodata")
-def task_received_handler(args, **kwargs):
+@task_prerun.connect(sender=process_geodata)
+def task_received_handler(task_id, task, *args, **kwargs):
+    print("Prerun")
     send_worker_status(args[1], {"status": states.RECEIVED})
 
 
-@task_postrun.connect(sender="geoapi.tasks.process_geodata")
-def task_postrun_handler(args, state, retval, **kwargs):
+@task_postrun.connect(sender=process_geodata)
+def task_postrun_handler(task_id, task, retval, state, *args, **kwargs):
+    print("Postrun")
     send_worker_status(args[1], {"status": state, "response": str(retval)})
 
 
-@task_retry.connect(sender="geoapi.tasks.process_geodata")
-def task_retry_handler(request, reason, **kwargs):
-    print(request)
+@task_retry.connect(sender=process_geodata)
+def task_retry_handler(request, reason, einfo, *args, **kwargs):
     print(f"Retrying task {request.args[1]}")
-    async_to_sync(send_worker_status)(
+    send_worker_status(
         request.args[1], {"status": states.RETRY, "response": str(reason)}
+    )
+
+
+@task_internal_error.connect(sender=process_geodata)
+def task_internal_error_handler(request, exc, traceback, *args, **kwargs):
+    print(f"Internal error for task {request.args[1]}")
+    send_worker_status(
+        request.args[1], {"status": states.FAILURE, "response": str(exc)}
     )
